@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "entangle-proxy.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "entangle-proxy.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "entangle-proxy.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- range keys .Values.podAnnotations }}
+        {{ . | quote }}: {{ get $.Values.podAnnotations . | quote}}
+        {{- end }}
+      labels:
+        {{- include "entangle-proxy.selectorLabels" . | nindent 10}}
+    spec:
+        {{- with .Values.imagePullSecrets }}
+        imagePullSecrets:
+          {{- toYaml . | nindent 6 }}
+        {{- end }}
+        containers:
+            - args:
+                - --secure-listen-address=0.0.0.0:8443
+                - --upstream=http://127.0.0.1:8080/
+                - --logtostderr=true
+                - --v=0
+              image: gcr.io/kubebuilder/kube-rbac-proxy:v0.11.0
+              name: kube-rbac-proxy
+              ports:
+                - containerPort: 8443
+                  name: https
+                  protocol: TCP
+              resources:
+                limits:
+                    cpu: 500m
+                    memory: 128Mi
+                requests:
+                    cpu: 5m
+                    memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+            - args:
+                - --health-probe-bind-address=:8081
+                - --metrics-bind-address=127.0.0.1:8080
+                - --leader-elect
+              command:
+                - /manager
+              image: '{{ .Values.image.repository | default "quay.io/c3os/entangle-proxy" }}:{{ .Values.image.tag | default .Chart.AppVersion }}'
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              livenessProbe:
+                httpGet:
+                    path: /healthz
+                    port: 8081
+                initialDelaySeconds: 15
+                periodSeconds: 20
+              name: manager
+              ports:
+                - containerPort: 9443
+                  name: webhook-server
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                    path: /readyz
+                    port: 8081
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              {{- if and .Values.resources .Values.resources.controller }}
+              resources:
+{{ toYaml .Values.resources.controller | indent 20 }}
+              {{- end }}
+              securityContext:
+                allowPrivilegeEscalation: false
+              volumeMounts:
+                - mountPath: /tmp/k8s-webhook-server/serving-certs
+                  name: cert
+                  readOnly: true
+        securityContext:
+            runAsNonRoot: true
+        serviceAccountName: {{ include "entangle-proxy.serviceAccountName" . }}
+        terminationGracePeriodSeconds: 10
+        volumes:
+            - name: cert
+              secret:
+                defaultMode: 420
+                secretName: webhook-server-cert
+        {{- with .Values.nodeSelector }}
+        nodeSelector:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.affinity }}
+        affinity:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.tolerations }}
+        tolerations:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}

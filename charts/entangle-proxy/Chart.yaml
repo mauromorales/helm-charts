@@ -1,0 +1,10 @@
+apiVersion: v2
+name: entangle-proxy
+description: A Helm chart for entangle
+icon: 
+type: application
+home: https://docs.c3os.io/
+maintainers:
+- name: Ettore Di Giacinto
+  email: mudler@c3os.io
+version: 0.0.1

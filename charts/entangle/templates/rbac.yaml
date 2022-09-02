@@ -1,0 +1,168 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    name: entangle-leader-election-role
+    namespace: {{ .Release.Namespace }}
+rules:
+    - apiGroups:
+        - ""
+      resources:
+        - configmaps
+      verbs:
+        - get
+        - list
+        - watch
+        - create
+        - update
+        - patch
+        - delete
+    - apiGroups:
+        - coordination.k8s.io
+      resources:
+        - leases
+      verbs:
+        - get
+        - list
+        - watch
+        - create
+        - update
+        - patch
+        - delete
+    - apiGroups:
+        - ""
+      resources:
+        - events
+      verbs:
+        - create
+        - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    creationTimestamp: null
+    name: entangle-manager-role
+rules:
+    - apiGroups:
+        - ""
+      resources:
+        - secrets
+      verbs:
+        - create
+        - get
+        - list
+        - watch
+    - apiGroups:
+        - ""
+      resources:
+        - services
+      verbs:
+        - create
+        - get
+        - list
+        - watch
+    - apiGroups:
+        - apps
+      resources:
+        - deployments
+      verbs:
+        - create
+        - delete
+        - get
+        - list
+        - patch
+        - update
+        - watch
+    - apiGroups:
+        - entangle.c3os-x.io
+      resources:
+        - entanglements
+      verbs:
+        - create
+        - delete
+        - get
+        - list
+        - patch
+        - update
+        - watch
+    - apiGroups:
+        - entangle.c3os-x.io
+      resources:
+        - entanglements/finalizers
+      verbs:
+        - update
+    - apiGroups:
+        - entangle.c3os-x.io
+      resources:
+        - entanglements/status
+      verbs:
+        - get
+        - patch
+        - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: entangle-metrics-reader
+rules:
+    - nonResourceURLs:
+        - /metrics
+      verbs:
+        - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: entangle-proxy-role
+rules:
+    - apiGroups:
+        - authentication.k8s.io
+      resources:
+        - tokenreviews
+      verbs:
+        - create
+    - apiGroups:
+        - authorization.k8s.io
+      resources:
+        - subjectaccessreviews
+      verbs:
+        - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: entangle-leader-election-rolebinding
+    namespace: {{ .Release.Namespace }}
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: entangle-leader-election-role
+subjects:
+    - kind: ServiceAccount
+      name: {{ include "entangle.serviceAccountName" . }}
+      namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: entangle-manager-rolebinding
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: entangle-manager-role
+subjects:
+    - kind: ServiceAccount
+      name: {{ include "entangle.serviceAccountName" . }}
+      namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: entangle-proxy-rolebinding
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: entangle-proxy-role
+subjects:
+    - kind: ServiceAccount
+      name: {{ include "entangle.serviceAccountName" . }}
+      namespace: {{ .Release.Namespace }}
