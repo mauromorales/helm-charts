@@ -44,6 +44,8 @@ spec:
                 type: string
               iso:
                 type: boolean
+              osRelease:
+                type: string
               pull:
                 properties:
                   containerRegistryCredentials:
