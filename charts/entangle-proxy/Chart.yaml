@@ -3,8 +3,9 @@ name: entangle-proxy
 description: A Helm chart for entangle
 icon: 
 type: application
-home: https://docs.c3os.io/
+home: https://kairos.io/
 maintainers:
 - name: Ettore Di Giacinto
-  email: mudler@c3os.io
+  email: mudler@kairos.io
 version: 0.0.1
+appVersion: "v0.1.0"

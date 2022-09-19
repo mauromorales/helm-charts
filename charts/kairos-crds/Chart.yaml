@@ -1,12 +1,10 @@
 apiVersion: v2
-name: osbuilder
-description: A Helm chart for osbuilder
+name: kairos-crds
+description: A Helm chart for deploying the Kairos CRDs
 icon: 
 type: application
 home: https://kairos.io/
 maintainers:
 - name: Ettore Di Giacinto
   email: mudler@kairos.io
-
-version: 0.1.0
-appVersion: "v0.1.1"
+version: 0.0.5

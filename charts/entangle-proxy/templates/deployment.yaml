@@ -50,7 +50,7 @@ spec:
                 - --leader-elect
               command:
                 - /manager
-              image: '{{ .Values.image.repository | default "quay.io/c3os/entangle-proxy" }}:{{ .Values.image.tag | default .Chart.AppVersion }}'
+              image: '{{ .Values.image.repository | default "quay.io/kairos/entangle-proxy" }}:{{ .Values.image.tag | default .Chart.AppVersion }}'
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               livenessProbe:
                 httpGet:
