@@ -1,0 +1,231 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    name: cluster-api-provider-kairos-leader-election-role
+    namespace: '{{.Release.Namespace}}'
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    creationTimestamp: null
+    name: cluster-api-provider-kairos-manager-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cluster.x-k8s.io
+    resources:
+      - clusters
+      - machines
+    verbs:
+      - create
+      - get
+      - list
+      - update
+      - watch
+  - apiGroups:
+      - cluster.x-k8s.io
+    resources:
+      - machines
+      - machines/status
+    verbs:
+      - create
+      - get
+      - list
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - infrastructure.cluster.x-k8s.io
+    resources:
+      - kairosclusters
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - infrastructure.cluster.x-k8s.io
+    resources:
+      - kairosclusters/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - infrastructure.cluster.x-k8s.io
+    resources:
+      - kairosclusters/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - infrastructure.cluster.x-k8s.io
+    resources:
+      - kairosmachines
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - infrastructure.cluster.x-k8s.io
+    resources:
+      - kairosmachines/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - infrastructure.cluster.x-k8s.io
+    resources:
+      - kairosmachines/status
+    verbs:
+      - get
+      - patch
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: cluster-api-provider-kairos-metrics-reader
+rules:
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: cluster-api-provider-kairos-proxy-role
+rules:
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: cluster-api-provider-kairos-leader-election-rolebinding
+    namespace: '{{.Release.Namespace}}'
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: cluster-api-provider-kairos-leader-election-role
+subjects:
+  - kind: ServiceAccount
+    name: '{{ include "helm-chart.serviceAccountName" . }}'
+    namespace: '{{.Release.Namespace}}'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: cluster-api-provider-kairos-manager-rolebinding
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: cluster-api-provider-kairos-manager-role
+subjects:
+  - kind: ServiceAccount
+    name: '{{ include "helm-chart.serviceAccountName" . }}'
+    namespace: '{{.Release.Namespace}}'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: cluster-api-provider-kairos-proxy-rolebinding
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: cluster-api-provider-kairos-proxy-role
+subjects:
+  - kind: ServiceAccount
+    name: '{{ include "helm-chart.serviceAccountName" . }}'
+    namespace: '{{.Release.Namespace}}'
