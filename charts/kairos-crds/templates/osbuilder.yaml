@@ -48,6 +48,9 @@ spec:
                                 type: string
                             cloudImage:
                                 type: boolean
+                            diskSize:
+                                description: Disk-only stuff
+                                type: string
                             gceImage:
                                 type: boolean
                             grubConfig:
@@ -59,6 +62,10 @@ spec:
                             iso:
                                 description: This needs to be revisited
                                 type: boolean
+                            netboot:
+                                type: boolean
+                            netbootURL:
+                                type: string
                             osRelease:
                                 type: string
                             pull:
