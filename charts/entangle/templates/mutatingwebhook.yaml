@@ -2,7 +2,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
     annotations:
-        cert-manager.io/inject-ca-from: entangle-system/entangle-serving-cert
+        cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "entangle.fullname" . }}-serving-cert
     name: entangle-mutating-webhook-configuration
 webhooks:
     - admissionReviewVersions:
