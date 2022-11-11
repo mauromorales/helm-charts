@@ -48,6 +48,7 @@ spec:
                 - --health-probe-bind-address=:8081
                 - --metrics-bind-address=127.0.0.1:8080
                 - --leader-elect
+                - --kubectl-image={{ .Values.image.kubectlRepository | default "quay.io/kairos/kubectl" }}:{{ .Values.image.kubectlTag | default .Chart.AppVersion }}
               command:
                 - /manager
               image: '{{ .Values.image.repository | default "quay.io/kairos/entangle-proxy" }}:{{ .Values.image.tag | default .Chart.AppVersion }}'

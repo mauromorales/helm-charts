@@ -16,6 +16,10 @@ image:
   repository: ""
   # image tag, leave empty to use chart's AppVersion
   tag: ""
+  # kubectl image tag, leave empty to use chart's AppVersion
+  kubectlTag: ""
+  # kubectl image to be used
+  kubectlRepository: ""
 
 podAnnotations: {}
 nodeSelector: {}
