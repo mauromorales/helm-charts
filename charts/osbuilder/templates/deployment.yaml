@@ -21,7 +21,7 @@ spec:
         spec:
             {{- with .Values.imagePullSecrets }}
             imagePullSecrets:
-            {{- toYaml . | nindent 6 }}
+            {{- toYaml . | nindent 14 }}
             {{- end }}
             containers:
               - args:
@@ -78,13 +78,13 @@ spec:
             terminationGracePeriodSeconds: 10
             {{- with .Values.nodeSelector }}
             nodeSelector:
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 14 }}
             {{- end }}
             {{- with .Values.affinity }}
             affinity:
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 14 }}
             {{- end }}
             {{- with .Values.tolerations }}
             tolerations:
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 14 }}
             {{- end }}
