@@ -33,6 +33,9 @@ tls:
   # "cert-manager"-only options:
   certManagerIssuerName: ""
 
+nginx:
+  pvc-size: 3Gi
+
 ## Resource limits & requests
 ## Ref: https://kubernetes.io/docs/user-guide/compute-resources/
 resources:

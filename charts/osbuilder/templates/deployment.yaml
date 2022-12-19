@@ -50,6 +50,10 @@ spec:
                   - --leader-elect
                   - --tool-image={{ .Values.image.repository | default "quay.io/kairos/osbuilder-tools" }}:{{ .Values.image.tag | default .Chart.AppVersion }}
                   - --serve-image={{ .Values.image.serving | default "nginx" }}
+                  - --copy-to-namespace={{ .Release.Namespace }}
+                  - --copy-role=osartifactbuilder-operator-artifactCopier
+                  - --copy-to-pod-label=app.kubernetes.io/name=osbuilder-nginx
+                  - --copy-to-path="/usr/share/nginx/html"
                 command:
                   - /manager
                 image: '{{ .Values.image.repository | default "quay.io/kairos/osbuilder" }}:{{ .Values.image.tag | default .Chart.AppVersion }}'
@@ -88,3 +92,35 @@ spec:
             tolerations:
             {{- toYaml . | nindent 14 }}
             {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        app.kubernetes.io/name: osbuilder-nginx
+    name: '{{ include "helm-chart.fullname" . }}'
+    namespace: '{{.Release.Namespace}}'
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app.kubernetes.io/name: osbuilder-nginx
+    template:
+        metadata:
+            labels:
+                app.kubernetes.io/name: osbuilder-nginx
+        spec:
+            containers:
+              - image: nginx
+                name: nginx
+                ports:
+                  - containerPort: 80
+                volumeMounts:
+                  - mountPath: /usr/share/nginx/html
+                    name: nginx-public
+            serviceAccountName: '{{ include "helm-chart.serviceAccountName" . }}'
+            terminationGracePeriodSeconds: 10
+            volumes:
+              - name: nginx-public
+                persistentVolumeClaim:
+                    claimName: osartifactbuilder-operator-nginx-public
