@@ -32,6 +32,8 @@ jobs:
             echo "::set-output name=changed::true"
           fi
 
+      - name: Help
+        run: ct help lint
       - name: Run chart-testing (lint)
         run: ct lint --validate-maintainers false --target-branch ${{ github.event.repository.default_branch }}
 
