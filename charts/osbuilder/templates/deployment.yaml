@@ -21,7 +21,7 @@ spec:
         spec:
             {{- with .Values.imagePullSecrets }}
             imagePullSecrets:
-            {{- toYaml . | nindent 14 }}
+            {{- toYaml . | nindent 6 }}
             {{- end }}
             containers:
               - args:
